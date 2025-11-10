@@ -2,7 +2,8 @@ import os
 from datetime import datetime
 import shutil
 import time
-class Rule():
+
+class FileRule():
     def __init__(self, destination_folder:str, file_types:list, identifiers:list):
         self.destination_folder = destination_folder
         self.file_types  = file_types
@@ -38,21 +39,33 @@ class Rule():
             return False
         return True
 
-class TransferRule():
-    def __init__(self, name:str, source_folder:str, rules:list):
+class FolderRule():
+    def __init__(self, name:str, source_folder:str, rules=[]):
         self.name   = name
         self.source_folder = source_folder
         self.rules  = rules
 
+    def add_rule(self, destination_folder, file_types:list, identifiers:list):
+        self.rules.append(
+            FileRule(
+                destination_folder=destination_folder,
+                file_types=file_types,
+                identifiers=identifiers
+            )
+        )
+
     def print_log(self, copy_type:str, file_name:str, dest_path:str):
         text = f'''
-____________________________
 Date   : {datetime.today().replace(microsecond=0)}
+Name   : {self.name}
 Action : {copy_type.capitalize()}
 File   : {file_name}
 From   : {self.source_folder}
-To     : {dest_path}'''
+To     : {dest_path}
+____________________________
+'''
         print(text)
+    
     def run(self):
         try:
             for file in os.listdir(self.source_folder):
@@ -72,25 +85,25 @@ To     : {dest_path}'''
                         continue
         except Exception as e:
             text=f'''
-____________________________
 !!!ERROR!!!
 Rule Name  : {self.name}
-Description: {e}'''
+Description: {e}
+____________________________'''
             print(text)
 
 if __name__ == '__main__':
-    transfer_rules = [
-        TransferRule(
+    frule1 = FolderRule(
             name = 'default name',
-            source_folder ='source',
-            rules = [
-                Rule(
-                    destination_folder='destination',
-                    file_types=['pdf'],
-                    identifiers=['letter']
-                )
-            ]
-        )
+            source_folder =r'C:\Users\PT-PC\Documents\PDF'
+    )
+    frule1.add_rule(
+        destination_folder=r'C:\Users\PT-PC\Documents\np',
+        file_types=['pdf'],
+        identifiers=[]
+    )
+
+    transfer_rules = [
+        frule1,
     ]
     print('File transfer started.')
     while True:
