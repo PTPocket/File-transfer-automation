@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 import shutil
-#import time
+import time
 class Rule():
     def __init__(self, destination_folder:str, file_types:list, identifiers:list):
         self.destination_folder = destination_folder
@@ -97,3 +97,4 @@ if __name__ == '__main__':
     while True:
         for transfer_rule in transfer_rules:
             transfer_rule.run()
+        time.sleep(1)
