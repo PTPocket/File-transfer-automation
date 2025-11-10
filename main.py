@@ -57,9 +57,8 @@ To     : {dest_path}'''
         try:
             for file in os.listdir(self.source_folder):
                 source_path = os.path.join(self.source_folder, file)
-                for rule in self.rules:
-                    if rule.is_valid(file) is False:
-                        continue
+                rules = [rule for rule in self.rules if rule.is_valid(file)]
+                for rule in rules:
                     dest_folder = rule.destination_folder
                     dest_path = rule.get_destination_path(file)
                     if rule.file_exists(file) is False:
