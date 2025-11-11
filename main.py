@@ -2,6 +2,9 @@ import os
 from datetime import datetime
 import shutil
 import time
+import logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
 
 class FileRule():
     def __init__(self, destination_folder:str, file_types:list, identifiers:list):
@@ -40,11 +43,10 @@ class FileRule():
         return True
 
 class FolderRule():
-    def __init__(self, name:str, source_folder:str, rules=[]):
-        self.name   = name
+    def __init__(self, source_folder:str, rules=[]):
         self.source_folder = source_folder
         self.rules  = rules
-
+        self.last_error = None
     def add_rule(self, destination_folder, file_types:list, identifiers:list):
         self.rules.append(
             FileRule(
@@ -55,18 +57,11 @@ class FolderRule():
         )
 
     def print_log(self, copy_type:str, file_name:str, dest_path:str):
-        text = f'''
-Date   : {datetime.today().replace(microsecond=0)}
-Name   : {self.name}
-Action : {copy_type.capitalize()}
-File   : {file_name}
-From   : {self.source_folder}
-To     : {dest_path}
-____________________________
-'''
-        print(text)
+        text = f'[{copy_type.capitalize()}] [{file_name}] [{self.source_folder}] >> [{dest_path}]'
+        logging.info(text)
     
     def run(self):
+        dest_folder = None
         try:
             for file in os.listdir(self.source_folder):
                 source_path = os.path.join(self.source_folder, file)
@@ -83,27 +78,26 @@ ____________________________
                         shutil.copy2(source_path, dest_path)
                         self.print_log('Overwrite', file, dest_folder)
                         continue
+            self.last_error = None
         except Exception as e:
-            text=f'''
-!!!ERROR!!!
-Rule Name  : {self.name}
-Description: {e}
-____________________________'''
-            print(text)
+            if self.last_error is None or (time.perf_counter()-self.last_error > 300):
+                logging.error(f'[{self.source_folder}] >> [{dest_folder}] {e}')
+                self.last_error = time.perf_counter()
 
 if __name__ == '__main__':
-    frule1 = FolderRule(
-            name = 'default name',
+    
+
+    rule1 = FolderRule(
             source_folder =r'C:\Users\PT-PC\Documents\PDF'
     )
-    frule1.add_rule(
+    rule1.add_rule(
         destination_folder=r'C:\Users\PT-PC\Documents\np',
         file_types=['pdf'],
         identifiers=[]
     )
 
     transfer_rules = [
-        frule1,
+        rule1,
     ]
     print('File transfer started.')
     while True:
