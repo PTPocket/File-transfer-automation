@@ -85,7 +85,7 @@ class FolderRule():
                 self.last_error = time.perf_counter()
 
 if __name__ == '__main__':
-    
+    logging.info('Starting program')
 
     rule1 = FolderRule(
             source_folder =r'C:\Users\PT-PC\Documents\PDF'
@@ -99,7 +99,7 @@ if __name__ == '__main__':
     transfer_rules = [
         rule1,
     ]
-    print('File transfer started.')
+    
     while True:
         for transfer_rule in transfer_rules:
             transfer_rule.run()
