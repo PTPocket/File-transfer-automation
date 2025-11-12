@@ -3,7 +3,6 @@ from datetime import datetime
 import shutil
 import time
 import logging
-
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, wait
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -113,6 +112,8 @@ class FolderRule():
                 logging.error(f'[{self.source_dir}] >> [{destination_dir}] {e}')
                 self.last_error = time.perf_counter()
 
+
+
 if __name__ == '__main__':
     logging.info('START PROGRAM')
     transfer_rules = [
@@ -131,9 +132,9 @@ if __name__ == '__main__':
     count = 0
     avg_time = 0
     avg_time1 = 0
-    
+
     with ThreadPoolExecutor() as executor:
-    #with ProcessPoolExecutor(min(len(transfer_rules),12)) as executor:
+    #with ProcessPoolExecutor(min(len(transfer_rules),os.cpu_count)) as executor:
         while True:
             # start = time.perf_counter()
             futures = [executor.submit(transfer_rule.run) for transfer_rule in transfer_rules]
