@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 import shutil
 import time
+import json
 import logging
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, wait
 
@@ -52,10 +53,10 @@ class FileRule():
         return True
 
 class FolderRule():
-    def __init__(self, source_dir:str, max_depth:int, rules:list):
+    def __init__(self, source_dir:str, max_depth:int):
         self.source_dir = source_dir
         self.max_depth = max_depth
-        self.rules  = rules
+        self.rules  = []
         self.last_error = None
 
     def add_rule(self, destination_dir, file_types:list, identifiers:list):
@@ -112,23 +113,45 @@ class FolderRule():
                 logging.error(f'[{self.source_dir}] >> [{destination_dir}] {e}')
                 self.last_error = time.perf_counter()
 
-
+def load_rules():
+    setting_path = os.path.join(os.getcwd(),'Setting.json')
+    if os.path.exists(setting_path) is False:
+        with open(setting_path, 'w') as file:
+            data = [
+                {
+                    'source_folder' : "C:\\source",
+                    'max_depth'  : 1,
+                    'rules'      : [
+                        {
+                            'destination_folder': "S:\\destination",
+                            'file_types'     : ['pdf'],
+                            'identifiers'    : ['cad']
+                        }
+                    ]
+                }        
+            ]
+            json.dump(data,file, indent=2)
+    settings = None
+    with open(setting_path) as file:
+        settings = json.load(file)
+    transfer_rules = []
+    for setting in settings:
+        frule = FolderRule(
+            source_dir = setting['source_folder'],
+            max_depth  = setting['max_depth'],
+        )
+        for rule in setting['rules']:
+            frule.add_rule(
+                rule['destination_folder'],
+                rule['file_types'],
+                rule['identifiers']
+            )
+        transfer_rules.append(frule)
+    return transfer_rules
 
 if __name__ == '__main__':
     logging.info('START PROGRAM')
-    transfer_rules = [
-        FolderRule(
-            source_dir = r"C:\Users\PT-PC\Documents\np1",
-            max_depth = 0,
-            rules = [
-                FileRule(
-                    destination_dir=r"C:\Users\PT-PC\Documents\dest1",
-                    file_types=['pdf'],
-                    identifiers=[]
-                ),
-            ]
-        ),
-    ]
+    transfer_rules = load_rules()
     count = 0
     avg_time = 0
     avg_time1 = 0
