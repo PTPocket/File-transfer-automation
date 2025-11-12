@@ -50,9 +50,8 @@ class FileRule():
         return True
 
 class FolderRule():
-    def __init__(self, source_dir:str, files_in_dir:bool, max_depth:int, rules:list):
+    def __init__(self, source_dir:str, max_depth:int, rules:list):
         self.source_dir = source_dir
-        self.files_in_dir = files_in_dir
         self.max_depth = max_depth
         self.rules  = rules
         self.last_error = None
@@ -101,7 +100,7 @@ class FolderRule():
         try:
             for file in os.listdir(self.source_dir):
                 file_path = os.path.join(self.source_dir, file)
-                if self.files_in_dir is True and os.path.isdir(file_path):
+                if self.max_depth > 0 and os.path.isdir(file_path):
                     self.check_directory_for_files(file_path,0)
                     continue
                 self.validate_and_copy(file, self.source_dir)
@@ -112,24 +111,21 @@ class FolderRule():
                 self.last_error = time.perf_counter()
 
 if __name__ == '__main__':
-    logging.info('Starting program')
-
-    rule0 = FolderRule(
-        source_dir = r'C:\Users\PT-PC\Documents\PDF',
-        files_in_dir = True,
-        max_depth = 1,
-        rules = [
-            FileRule(
-                destination_dir=r'C:\Users\PT-PC\Documents\np',
-                file_types=['pdf'],
-                identifiers=[]
-            )
-        ]
-    )
-
+    logging.info('START PROGRAM')
     transfer_rules = [
-        rule0,
+        FolderRule(
+            source_dir = r'source',
+            max_depth = 1,
+            rules = [
+                FileRule(
+                    destination_dir=r'dest',
+                    file_types=[],
+                    identifiers=[]
+                ),
+            ]
+        )
     ]
+
     # count = 0
     # avg_time = 0
     while True:
