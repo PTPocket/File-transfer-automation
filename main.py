@@ -3,6 +3,9 @@ from datetime import datetime
 import shutil
 import time
 import logging
+
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, wait
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 def timeit(func):
@@ -114,25 +117,37 @@ if __name__ == '__main__':
     logging.info('START PROGRAM')
     transfer_rules = [
         FolderRule(
-            source_dir = r'source',
-            max_depth = 1,
+            source_dir = r"C:\Users\PT-PC\Documents\np1",
+            max_depth = 0,
             rules = [
                 FileRule(
-                    destination_dir=r'dest',
-                    file_types=[],
+                    destination_dir=r"C:\Users\PT-PC\Documents\dest1",
+                    file_types=['pdf'],
                     identifiers=[]
                 ),
             ]
-        )
+        ),
     ]
-
-    # count = 0
-    # avg_time = 0
-    while True:
-        for transfer_rule in transfer_rules:
+    count = 0
+    avg_time = 0
+    avg_time1 = 0
+    
+    with ThreadPoolExecutor() as executor:
+    #with ProcessPoolExecutor(min(len(transfer_rules),12)) as executor:
+        while True:
             # start = time.perf_counter()
-            transfer_rule.run()
-            # avg_time+=time.perf_counter()-start
+            futures = [executor.submit(transfer_rule.run) for transfer_rule in transfer_rules]
+            wait(futures)
+            # elapsed = time.perf_counter()-start
+            # avg_time+=elapsed
             # count+=1
-            # print(f'AVG Time: {avg_time/count}')
-        time.sleep(1)
+            # print(f'Pool Elapsed Time: {elapsed:0.5f} - Avg Time: {avg_time/count}')
+
+            # start = time.perf_counter()
+            # for transfer_rule in transfer_rules:
+                
+            #     transfer_rule.run()
+            # elapsed = time.perf_counter()-start
+            # avg_time1+=elapsed
+            # print(f'Single Elapsed Time: {elapsed:0.5f} - Avg Time: {avg_time1/count}')
+            time.sleep(2)
