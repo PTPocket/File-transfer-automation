@@ -69,7 +69,7 @@ class FolderRule():
         )
 
     def print_log(self, copy_type:str, file_name:str, source_dir, dest_dir:str):
-        text = f'[{copy_type.capitalize()}] [{file_name}] [{source_dir}] >> [{dest_dir}]'
+        text = f'[{copy_type.capitalize()}] [{file_name}]\n[{source_dir}] >> [{dest_dir}]'
         logging.info(text)
     
     def validate_and_copy(self, file, file_dir):
