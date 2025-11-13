@@ -107,6 +107,8 @@ class FolderRule():
                     self.check_directory_for_files(file_path,0)
                     continue
                 self.validate_and_copy(file, self.source_dir)
+            if self.last_error is not None:
+                logging.info(f'[Reconnected] >> {self.source_dir}')
             self.last_error = None
         except Exception as e:
             if self.last_error is None or (time.perf_counter()-self.last_error > 300):
