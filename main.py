@@ -6,7 +6,7 @@ import json
 import logging
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, wait
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s\n")
 
 def timeit(func):
     def wrapper(*args, **kwargs):
@@ -68,8 +68,8 @@ class FolderRule():
             )
         )
 
-    def print_log(self, copy_type:str, file_name:str, source_dir, dest_dir:str):
-        text = f'[{copy_type.capitalize()}] [{file_name}]\n[{source_dir}] >> [{dest_dir}]'
+    def print_log(self, copy_type:str, file_name:str, dest_dir:str):
+        text = f'[{copy_type.capitalize()}] [{file_name}]\nSource      : [{self.source_dir}]\nDestination : [{dest_dir}]'
         logging.info(text)
     
     def validate_and_copy(self, file, file_dir):
@@ -80,12 +80,12 @@ class FolderRule():
             dest_path = rule.get_destination_path(file)
             if rule.file_exists(file) is False:
                 shutil.copy2(file_path, dest_path)
-                self.print_log('Copy', file, file_dir, destination_dir)
+                self.print_log('Copy', file, destination_dir)
                 continue
             #Checks if file in source has been modified
             if os.path.getmtime(file_path) > os.path.getmtime(dest_path):
                 shutil.copy2(file_path, dest_path)
-                self.print_log('Overwrite', file, file_dir,  destination_dir)
+                self.print_log('Overwrite', file,  destination_dir)
                 continue
 
     def check_directory_for_files(self, dir_path, depth):
